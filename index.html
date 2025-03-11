@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tycoon Game on Monad Testnet</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.6.9/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+    <h1>Tycoon Game on Monad Testnet</h1>
+    <button id="initializePlayer">Initialize Player</button>
+    <button id="claimIncome">Claim Income</button>
+    <button id="upgradeIncomeRate">Upgrade Income Rate (10 Coins)</button>
+
+    <div>
+        <p>Your Balance: <span id="balance">0</span> coins</p>
+        <p>Your Income Rate: <span id="incomeRate">1</span> coins/sec</p>
+    </div>
+
+    <script>
+        const provider = new ethers.JsonRpcProvider("https://rpc.testnet.monad.xyz");
+        const contractAddress = "YOUR_CONTRACT_ADDRESS";
+        const abi = [
+            "function initializePlayer() external",
+            "function claimIncome() external",
+            "function upgradeIncomeRate() external",
+            "function getBalance() external view returns (uint256)",
+            "function getIncomeRate() external view returns (uint256)"
+        ];
+
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(contractAddress, abi, signer);
+
+        // Initialize player if not already initialized
+        document.getElementById('initializePlayer').onclick = async () => {
+            await contract.initializePlayer();
+            updateBalance();
+        };
+
+        // Claim passive income
+        document.getElementById('claimIncome').onclick = async () => {
+            await contract.claimIncome();
+            updateBalance();
+        };
+
+        // Upgrade income rate (costs 10 coins)
+        document.getElementById('upgradeIncomeRate').onclick = async () => {
+            await contract.upgradeIncomeRate();
+            updateBalance();
+        };
+
+        // Update UI with balance and income rate
+        async function updateBalance() {
+            const balance = await contract.getBalance();
+            const incomeRate = await contract.getIncomeRate();
+            document.getElementById('balance').innerText = ethers.utils.formatEther(balance);
+            document.getElementById('incomeRate').innerText = ethers.utils.formatEther(incomeRate);
+        }
+
+        // Initialize balance on page load
+        updateBalance();
+    </script>
+</body>
+</html>
